@@ -1,5 +1,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
+#include <iostream>
 
 class Process
 {
@@ -21,8 +22,14 @@ class Process
         int WT=0; //Waiting time
 };
 
-std::ostream& operator<<(std::ostream& str, Process p) {
+std::ostream &operator<<(std::ostream& str, Process &p) {
     str<<p.return_PID()<<"	"<<p.return_AT()<<"	"<<p.return_BT()<<"	"<<p.CT<<"	"<<p.TAT<<"	"<<p.WT;
+    return str;
+}
+
+std::ostream &operator<<(std::ostream& str, std::vector<Process> &p) {
+    for (int i=0; i<p.size(); ++i)
+        str<<p[i].return_PID()<<"	"<<p[i].return_AT()<<"	"<<p[i].return_BT()<<"	"<<p[i].CT<<"	"<<p[i].TAT<<"	"<<p[i].WT<<"\n";
     return str;
 }
 

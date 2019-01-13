@@ -1,0 +1,30 @@
+Round-Robin Algorithm
+PID	AT	BT	CT	TAT	WT
+1	0	4	8	8	4
+2	1	5	18	17	12
+3	2	2	6	4	2
+4	3	1	9	6	5
+5	4	6	21	17	11
+6	6	3	19	13	10
+Average total amount of time that process spent in the system: 10.8333
+Average waiting time: 7.33333
+Round-Robin Algorithm
+PID	AT	BT	CT	TAT	WT
+1	0	4	10	10	6
+2	1	5	18	17	12
+3	2	2	8	6	4
+4	3	1	9	6	5
+5	4	6	21	17	11
+6	6	3	16	10	7
+Average total amount of time that process spent in the system: 11
+Average waiting time: 7.5
+Round-Robin Algorithm
+PID	AT	BT	CT	TAT	WT
+1	0	4	15	15	11
+2	1	5	19	18	13
+3	2	2	10	8	6
+4	3	1	11	8	7
+5	4	6	21	17	11
+6	6	3	18	12	9
+Average total amount of time that process spent in the system: 13
+Average waiting time: 9.5

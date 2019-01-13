@@ -1,4 +1,4 @@
-// DODAJ ZGRANIE DO PLIKU I ZASTANOW SIE DLACZEGO ROUND ROBIN NIE DZIALA PRZY PONOWNYM WYWOLANIU FUNKCJI
+//ZASTANOW SIE DLACZEGO ROUND ROBIN NIE DZIALA PRZY PONOWNYM WYWOLANIU FUNKCJI
 
 #include <iostream>
 #include <fstream>
@@ -11,38 +11,41 @@
 #include "Round_Robin.h"
 
 #define TABLE_OF_PROCESSES "./table_of_processes3.txt"
+#define RESULT_FILE "./results.txt"
+enum algorithm {
+	FCFS_algorithm=0,
+	SJF_algorithm,
+	Round_Robin_algorithm
+};
 
+std::vector<Process> read_data_from_file (std::fstream &file);
 std::vector<Process> add_processes (std::vector<Process> table_of_processes);
+void simulate_algorithm (algorithm name);
+void save_result (std::vector<Process> result, algorithm name);
+void show_result (std::vector<Process> result, algorithm name);
 
 int main() {
-	std::fstream file;
-	file.open(TABLE_OF_PROCESSES, std::ios::in); //opening file in read-only mode
-	if( file.good() == true ) {
-		std::cout << "Access granted!" << std::endl;
-		int first_column,
-			second_column,
-			third_column;
-		std::vector<Process> table_of_processes;
-		while (!file.eof()) {
-			file>>first_column>>second_column>>third_column;
-			table_of_processes.push_back(Process(first_column,second_column,third_column));
-		}
-    	char menu;
-		std::cout<<"Do you want to add more processes to the list? [y/n]";
-		std::cin>>menu;
-		if (menu=='y') table_of_processes=add_processes(table_of_processes);
-    	FCFS(table_of_processes);
-		SJF(table_of_processes);
-		Round_Robin(table_of_processes);
-		std::cout<<"\n\nPID - Process ID\nAT - Acess time\nBT - Burst time\nCT - time at which process has ended\nTAT - Total amount of time that process spent in the system\nWT - Waiting time";
-	}
-	else {
-		std::cout << "Access denied!" << std::endl;
-		return 1;
-	}
+	//simulate_algorithm (FCFS_algorithm);
+	//simulate_algorithm (SJF_algorithm);
+	simulate_algorithm (Round_Robin_algorithm);
+	simulate_algorithm (Round_Robin_algorithm);
+	simulate_algorithm (Round_Robin_algorithm);
+	//std::cout<<"PID - Process ID\nAT - Acess time\nBT - Burst time\nCT - time at which process has ended\nTAT - Total amount of time that process spent in the system\nWT - Waiting time";
 	int n;
 	std::cin>>n;
 	return 0;
+}
+
+std::vector<Process> read_data_from_file (std::fstream &file) {
+	int first_column,
+		second_column,
+		third_column;
+	std::vector<Process> table_of_processes;
+	while (!file.eof()) {
+		file>>first_column>>second_column>>third_column;
+		table_of_processes.push_back(Process(first_column,second_column,third_column));
+	}
+	return table_of_processes;
 }
 
 std::vector<Process> add_processes (std::vector<Process> table_of_processes) {
@@ -60,4 +63,90 @@ std::vector<Process> add_processes (std::vector<Process> table_of_processes) {
 	}
 	std::sort (table_of_processes.begin(), table_of_processes.end(), sort_by_AT); //sort processes by AT
 	return table_of_processes;
+}
+
+void simulate_algorithm (algorithm name) {
+	std::fstream file;
+	file.open(TABLE_OF_PROCESSES, std::ios::in); //opening file in read-only mode
+	if( file.good() == true ) {
+		std::cout << "Access granted!" << std::endl;
+		std::vector<Process> table_of_processes,
+							 result;
+		table_of_processes=read_data_from_file(file);
+    	char menu;
+		std::cout<<"Do you want to add more processes to the list? [y/n]";
+		std::cin>>menu;
+		if (menu=='y') 
+			table_of_processes=add_processes(table_of_processes);
+		switch (name) {	
+    		case FCFS_algorithm : 
+    			result=FCFS(table_of_processes);
+    			break;
+			case SJF_algorithm : 
+				result=SJF(table_of_processes);
+				break;
+			case Round_Robin_algorithm : 
+				result=Round_Robin(table_of_processes);
+				break;
+		}
+		save_result(result, name);
+		file.close();
+	}
+	else {
+		std::cout << "Access denied!" << std::endl;
+	}
+}
+
+void save_result (std::vector<Process> result, algorithm name) {
+	std::fstream file;
+	file.open(RESULT_FILE, std::ios::out | std::ios::app); //opening file in save-only mode
+	if( file.good() == true ) {
+		std::cout << "Access granted!" << std::endl;
+		float	average_TAT=0, //Average total amount of time that process spent in the system
+			average_WT=0; //Average waiting time
+		for (int i=0; i<result.size(); ++i) {
+			average_TAT=average_TAT+result[i].TAT; //addition of TAT
+			average_WT=average_WT+result[i].WT; //addition of WT
+		}
+		average_TAT=average_TAT/result.size(); //dividing by number of processes
+		average_WT=average_WT/result.size(); //dividing by number of processes
+		std::sort (result.begin(), result.end(), sort_by_PID); //sorting by PID
+		switch (name) {	
+    		case FCFS_algorithm : 
+    			file<<"FCFS Algorithm\n";
+    			break;
+			case SJF_algorithm : 
+				file<<"SJF Algorithm\n";
+				break;
+			case Round_Robin_algorithm : 
+				file<<"Round-Robin Algorithm\n";
+				break;
+		}
+		file<<"PID	AT	BT	CT	TAT	WT\n"<<result<<"Average total amount of time that process spent in the system: "<<average_TAT<<"\nAverage waiting time: "<<average_WT<<std::endl;
+		file.close();
+	}
+	else {
+		std::cout << "Access denied!" << std::endl;
+	}
+}
+
+void show_result (std::vector<Process> result, algorithm name) {
+	float	average_TAT=0, //Average total amount of time that process spent in the system
+			average_WT=0; //Average waiting time
+	for (int i=0; i<result.size(); ++i) {
+		average_TAT=average_TAT+result[i].TAT; //addition of TAT
+		average_WT=average_WT+result[i].WT; //addition of WT
+	}
+	average_TAT=average_TAT/result.size(); //dividing by number of processes
+	average_WT=average_WT/result.size(); //dividing by number of processes
+	std::sort (result.begin(), result.end(), sort_by_PID); //sorting by PID
+	switch (name) {	
+		case FCFS_algorithm : std::cout<<"\nFCFS Algorithm\n"; break;
+		case SJF_algorithm : std::cout<<"\nSJF Algorithm\n"; break;
+		case Round_Robin_algorithm : std::cout<<"\nRound-Robin Algorithm\n"; break;
+	}
+	std::cout<<"\nPID	AT	BT	CT	TAT	WT\n"; //showing output
+	for (int i=0; i<result.size(); ++i)
+		std::cout << result[i] << '\n';
+	std::cout<<"Average total amount of time that process spent in the system: "<<average_TAT<<"\nAverage waiting time: "<<average_WT<<std::endl;
 }
