@@ -1,12 +1,8 @@
 #ifndef ROUND_ROBIN_H
 #define ROUND_ROBIN_H
-#include <vector>
 
-std::vector<Process> Round_Robin (std::vector<Process> table_of_processes) {
-	int TQ=0, //time quantum
-		time=0; //increasing every step
-	std::cout<<"On what value set the TQ (Time quantum)?\n";
-	std::cin>>TQ;
+std::vector<Process> Round_Robin (std::vector<Process> table_of_processes, int &TQ) {
+	int time=0; //increasing every step
 	std::vector<Process> queue = {table_of_processes[0]};
 	while(!queue.empty()) { //while queue is not empty
 		if (queue[0].return_BT()>TQ) { //if Burst time is greater than Time quantum

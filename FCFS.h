@@ -1,6 +1,5 @@
 #ifndef FCFS_H
 #define FCFS_H
-#include <vector>
 
 std::vector<Process> FCFS (std::vector<Process> table_of_processes) {
 	table_of_processes[0].CT=table_of_processes[0].return_BT()+table_of_processes[0].return_AT(); //calculating the algorithm for the first process

@@ -1,5 +1,3 @@
-//ZASTANOW SIE DLACZEGO ROUND ROBIN NIE DZIALA PRZY PONOWNYM WYWOLANIU FUNKCJI
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -21,14 +19,15 @@ enum algorithm {
 std::vector<Process> read_data_from_file (std::fstream &file);
 std::vector<Process> add_processes (std::vector<Process> table_of_processes);
 void simulate_algorithm (algorithm name);
-void save_result (std::vector<Process> result, algorithm name);
-void show_result (std::vector<Process> result, algorithm name);
+void save_result (std::vector<Process> &result, algorithm name, int &TQ);
+void show_result (std::vector<Process> &result, algorithm name, int &TQ);
 
 int main() {
-	//simulate_algorithm (FCFS_algorithm);
-	//simulate_algorithm (SJF_algorithm);
-	simulate_algorithm (Round_Robin_algorithm);
-	simulate_algorithm (Round_Robin_algorithm);
+	std::fstream file;
+	file.open(RESULT_FILE, std::ios::out);
+	file.close();
+	simulate_algorithm (FCFS_algorithm);
+	simulate_algorithm (SJF_algorithm);
 	simulate_algorithm (Round_Robin_algorithm);
 	//std::cout<<"PID - Process ID\nAT - Acess time\nBT - Burst time\nCT - time at which process has ended\nTAT - Total amount of time that process spent in the system\nWT - Waiting time";
 	int n;
@@ -78,6 +77,7 @@ void simulate_algorithm (algorithm name) {
 		std::cin>>menu;
 		if (menu=='y') 
 			table_of_processes=add_processes(table_of_processes);
+		int TQ=0; //Time Quantum
 		switch (name) {	
     		case FCFS_algorithm : 
     			result=FCFS(table_of_processes);
@@ -86,10 +86,12 @@ void simulate_algorithm (algorithm name) {
 				result=SJF(table_of_processes);
 				break;
 			case Round_Robin_algorithm : 
-				result=Round_Robin(table_of_processes);
+				std::cout<<"On what value set the TQ (Time quantum)?\n";
+				std::cin>>TQ;
+				result=Round_Robin(table_of_processes, TQ);
 				break;
 		}
-		save_result(result, name);
+		save_result(result, name, TQ);
 		file.close();
 	}
 	else {
@@ -97,7 +99,7 @@ void simulate_algorithm (algorithm name) {
 	}
 }
 
-void save_result (std::vector<Process> result, algorithm name) {
+void save_result (std::vector<Process> &result, algorithm name, int &TQ) {
 	std::fstream file;
 	file.open(RESULT_FILE, std::ios::out | std::ios::app); //opening file in save-only mode
 	if( file.good() == true ) {
@@ -113,16 +115,16 @@ void save_result (std::vector<Process> result, algorithm name) {
 		std::sort (result.begin(), result.end(), sort_by_PID); //sorting by PID
 		switch (name) {	
     		case FCFS_algorithm : 
-    			file<<"FCFS Algorithm\n";
+    			file << "FCFS Algorithm\n";
     			break;
 			case SJF_algorithm : 
-				file<<"SJF Algorithm\n";
+				file << "SJF Algorithm\n";
 				break;
 			case Round_Robin_algorithm : 
-				file<<"Round-Robin Algorithm\n";
+				file << "Round-Robin Algorithm\nTime Quantum: " << TQ << std::endl;
 				break;
 		}
-		file<<"PID	AT	BT	CT	TAT	WT\n"<<result<<"Average total amount of time that process spent in the system: "<<average_TAT<<"\nAverage waiting time: "<<average_WT<<std::endl;
+		file << "PID	AT	BT	CT	TAT	WT\n" << result << "Average total amount of time that process spent in the system: " << average_TAT << "\nAverage waiting time: " << average_WT << std::endl;
 		file.close();
 	}
 	else {
@@ -130,7 +132,7 @@ void save_result (std::vector<Process> result, algorithm name) {
 	}
 }
 
-void show_result (std::vector<Process> result, algorithm name) {
+void show_result (std::vector<Process> &result, algorithm name, int &TQ) {
 	float	average_TAT=0, //Average total amount of time that process spent in the system
 			average_WT=0; //Average waiting time
 	for (int i=0; i<result.size(); ++i) {
@@ -141,12 +143,18 @@ void show_result (std::vector<Process> result, algorithm name) {
 	average_WT=average_WT/result.size(); //dividing by number of processes
 	std::sort (result.begin(), result.end(), sort_by_PID); //sorting by PID
 	switch (name) {	
-		case FCFS_algorithm : std::cout<<"\nFCFS Algorithm\n"; break;
-		case SJF_algorithm : std::cout<<"\nSJF Algorithm\n"; break;
-		case Round_Robin_algorithm : std::cout<<"\nRound-Robin Algorithm\n"; break;
+		case FCFS_algorithm :
+			std::cout << "FCFS Algorithm\n";
+			break;
+		case SJF_algorithm :
+			std::cout << "SJF Algorithm\n";
+			break;
+		case Round_Robin_algorithm :
+			std::cout << "Round-Robin Algorithm\nTime Quantum: " << TQ << std::endl;
+			break;
 	}
-	std::cout<<"\nPID	AT	BT	CT	TAT	WT\n"; //showing output
+	std::cout << "\nPID	AT	BT	CT	TAT	WT\n"; //showing output
 	for (int i=0; i<result.size(); ++i)
 		std::cout << result[i] << '\n';
-	std::cout<<"Average total amount of time that process spent in the system: "<<average_TAT<<"\nAverage waiting time: "<<average_WT<<std::endl;
+	std::cout << "Average total amount of time that process spent in the system: " << average_TAT << "\nAverage waiting time: " << average_WT << std::endl;
 }
