@@ -2,19 +2,40 @@
 #define SJF_H
 
 std::vector<Process> SJF (std::vector<Process> table_of_processes) {
-	table_of_processes[0].CT=table_of_processes[0].return_BT()+table_of_processes[0].return_AT(); //calculating the algorithm for the first process
-	table_of_processes[0].TAT=table_of_processes[0].return_BT();
-	table_of_processes[0].WT=0;
-	for (int i=1; i<table_of_processes.size(); ++i) { //calculating the algorithm for the rest of the processes
-		int number=i; //assisting variable
-		for (int j=i; j<table_of_processes.size(); ++j)
-			if (table_of_processes[j].return_BT()<=table_of_processes[i-1].CT) //if BT of current process is smaller than or equal to CT of previous process
-				++number; //increment variable
-		std::sort (table_of_processes.begin()+i, table_of_processes.begin()+number, sort_by_BT); //sorting by Burst time processes that already arrived
-		table_of_processes[i].CT=table_of_processes[i-1].CT+table_of_processes[i].return_BT(); //CT = CT of the previously ended process + BT of the current process
-		table_of_processes[i].TAT=table_of_processes[i].CT-table_of_processes[i].return_AT(); //TAT = CT - AT
-		table_of_processes[i].WT=table_of_processes[i].TAT-table_of_processes[i].return_BT(); //WT = TAT - BT
-	}
+	std::sort (table_of_processes.begin(), table_of_processes.end(), sort_by_AT); //sort by Arrival Time
+	int time=0; //increasing every step
+	std::vector<Process> queue = {table_of_processes[0]}; // create a queue
+
+	while(!queue.empty()) { //while queue is not empty
+		std::sort (queue.begin(), queue.end(), sort_by_BT); //sort queue by Burst Time
+		
+		if (queue[0].return_BT()==0) { // if BT in queue equal 0
+
+			queue[0].CT=time;	// CT = current time
+			queue[0].TAT=queue[0].CT-queue[0].return_AT(); //TAT = CT - AT
+
+			for (int i=0; i<table_of_processes.size(); ++i) { //serching for right PID in table_of_processes
+				if (queue[0].return_PID()==table_of_processes[i].return_PID()) {
+					table_of_processes[i].CT=queue[0].CT; //assigning CT and TAT to the right PID in table_of_processes
+					table_of_processes[i].TAT=queue[0].TAT;
+					queue.erase(queue.begin()); //erasing bursted process from queue
+					break;
+				}
+			}
+		}
+		time=time+queue[0].return_BT(); //incrementing time
+
+		for (int i=0; i<table_of_processes.size(); ++i) //arrival of the new processes
+			if (time-queue[0].return_BT()<table_of_processes[i].return_AT() && table_of_processes[i].return_AT()<=time)
+				queue.push_back(table_of_processes[i]);
+		
+
+		queue.push_back(Process(queue[0].return_PID(),queue[0].return_AT(),0)); //moving process to the end of the queue
+		queue.erase(queue.begin()); //erasing moved process
+    }
+	for (int i=0; i<table_of_processes.size(); ++i)
+		table_of_processes[i].WT=table_of_processes[i].TAT-table_of_processes[i].return_BT(); //calculating waiting time
+
 	return table_of_processes;
 }
 

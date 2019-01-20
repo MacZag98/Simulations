@@ -1,0 +1,28 @@
+SJF Algorithm
+PID	AT	BT	CT	TAT	WT	Priority
+1	0	4	4	4	0	0
+2	1	3	10	9	6	0
+3	2	1	5	3	2	0
+4	3	2	7	4	2	0
+5	4	5	18	14	9	0
+6	8	3	13	5	2	0
+7	9	5	28	19	14	0
+8	7	6	34	27	21	0
+9	15	3	23	8	5	0
+10	17	2	20	3	1	0
+Average total amount of time that process spent in the system: 9.6
+Average waiting time: 6.2
+FCFS Algorithm
+PID	AT	BT	CT	TAT	WT	Priority
+1	0	4	4	4	0	0
+2	1	3	7	6	3	0
+3	2	1	8	6	5	0
+4	3	2	10	7	5	0
+5	4	5	15	11	6	0
+6	8	3	24	16	13	0
+7	9	5	29	20	15	0
+8	7	6	21	14	8	0
+9	15	3	32	17	14	0
+10	17	2	34	17	15	0
+Average total amount of time that process spent in the system: 11.8
+Average waiting time: 8.4
